@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_account_iva_import_wizard_form" model="ir.ui.view">
+            <field name="name">account.iva.import.wizard.form</field>
+            <field name="model">account.iva.import.wizard</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <!-- Eliminado el grupo para que el mensaje ocupe todo el ancho -->
+                        <div class="alert alert-info" role="alert" style="margin-bottom: 15px;">
+                            <p>Se han encontrado <strong><field name="existing_count" readonly="1" class="oe_inline"/></strong> facturas existentes y <strong><field name="new_count" readonly="1" class="oe_inline"/></strong> facturas nuevas para importar.</p>
+                        </div>
+                        
+                        <notebook>
+                            <page string="Facturas Existentes" invisible="existing_count == 0">
+                                <field name="existing_invoices_html" nolabel="1"/>
+                            </page>
+                            <page string="Facturas a Importar" invisible="new_count == 0">
+                                <field name="new_invoices_html" nolabel="1"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <footer>
+                        <button name="confirm_import" string="Importar Facturas Nuevas" type="object" 
+                                class="btn-primary" invisible="new_count == 0"/>
+                        <!-- Botón "Verificar Duplicada" eliminado -->
+                        <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="account_iva_file_form_view" model="ir.ui.view">
+            <field name="name">account.iva.file.form</field>
+            <field name="model">account.iva.file</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <field name="state" widget="statusbar"/>
+                        <button name="btn_process_file" string="Procesar Archivo" type="object" 
+                                invisible="state != 'draft'" class="oe_highlight"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="date"/>
+                                <field name="product_vat_id" readonly="state != 'draft'"/>
+                                <field name="product_novat_id" readonly="state != 'draft'"/>
+                            </group>
+                            <group>
+                                <field name="product_exempt_id" readonly="state != 'draft'"/>
+                                <field name="product_other_taxes_id" readonly="state != 'draft'"/>
+                                <field name="separator" readonly="state != 'draft'"/>
+                                <field name="iva_file" readonly="state != 'draft'"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Facturas importadas" name="facturas">
+                                <field name="move_ids"/>
+                            </page>
+                            <page string="Proveedores creados" name="proveedores">
+                                <field name="partner_ids"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

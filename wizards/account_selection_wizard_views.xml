@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_import_invoice_account_selection_form" model="ir.ui.view">
+            <field name="name">import.invoice.account.selection.form</field>
+            <field name="model">import.invoice.account.selection</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <p class="alert alert-info">
+                            Seleccione las cuentas contables que desea utilizar para cada factura a importar.
+                        </p>
+                        
+                        <field name="invoice_data_ids">
+                            <tree editable="bottom">
+                                <field name="line_number" readonly="1"/>
+                                <field name="invoice_number" readonly="1"/>
+                                <field name="partner_name" readonly="1"/>
+                                <field name="amount_vat" readonly="1"/>
+                                <field name="amount_novat" readonly="1"/>
+                                <field name="amount_other" readonly="1"/>
+                                <field name="vat_account_id" 
+                                       options="{'no_create': True}" invisible="amount_vat == 0"/>
+                                <field name="novat_account_id" 
+                                       options="{'no_create': True}" invisible="amount_novat == 0"/>
+                                <field name="other_account_id" 
+                                       options="{'no_create': True}" invisible="amount_other == 0"/>
+                            </tree>
+                        </field>
+                    </sheet>
+                    <footer>
+                        <button name="confirm_selection" string="Continuar Importación" 
+                                type="object" class="btn-primary"/>
+                        <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                        <button string="Cerrar" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

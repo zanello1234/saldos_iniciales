@@ -1,0 +1,13 @@
+<odoo>
+    <!-- Enhanced form view for account.move with IVA file information -->
+    <record id="view_account_invoice_iva_file_form" model="ir.ui.view">
+        <field name="name">account.invoice.iva.file.form</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <field name="currency_id" position="after">
+                <field name="file_amount" readonly="1"/>
+            </field>
+        </field>
+    </record>
+</odoo>
