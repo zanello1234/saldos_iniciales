@@ -1,0 +1,205 @@
+<odoo>
+    <data>
+
+        <record id="view_account_move_inherit_saldos" model="ir.ui.view">
+            <field name="name">account.move.form.inherit.saldos</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <field name="currency_id" position="after">
+                    <field name="file_amount" readonly="1"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="view_account_iva_file_tree" model="ir.ui.view">
+            <field name="name">account.iva.file.tree</field>
+            <field name="model">account.iva.file</field>
+            <field name="type">list</field>
+            <field name="arch" type="xml">
+                <list create="true" edit="true" delete="true">
+                    <field name="name" string="Proceso"/>
+                    <field name="operation_type" string="Operación" widget="badge"/>
+                    <field name="import_type" string="Tipo Import." widget="badge"/>
+                    <field name="date" string="Fecha"/>
+                    <field name="journal_id" string="Diario" optional="hide"/>
+                    <field name="usd_exchange_rate" string="TC USD" optional="hide" digits="[12,4]"/>
+                    <field name="state" string="Estado" widget="badge" 
+                           decoration-success="state == 'done'"
+                           decoration-warning="state == 'analyzed'"
+                           decoration-info="state == 'draft'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_account_iva_file_form" model="ir.ui.view">
+            <field name="name">account.iva.file.form</field>
+            <field name="model">account.iva.file</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="btn_analyze_file" 
+                                string="Analizar Archivo" 
+                                type="object"
+                                invisible="state not in ('draft',)"
+                                class="btn-secondary"/>
+                        <button name="btn_process_file" 
+                                string="Procesar Archivo" 
+                                type="object"
+                                invisible="state not in ('analyzed',)"
+                                class="btn-primary"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,analyzed,done"/>
+                    </header>
+                    <sheet>
+                        <!-- CSS inline para compactación -->
+                        <style>
+                            .compact_form .o_group {
+                                margin-bottom: 8px;
+                            }
+                            .compact_form .o_form_label {
+                                font-size: 13px;
+                                white-space: nowrap;
+                            }
+                            .compact_form .o_notebook .nav-tabs .nav-link {
+                                padding: 6px 12px;
+                                font-size: 13px;
+                            }
+                            .compact_form .o_list_view th, 
+                            .compact_form .o_list_view td {
+                                padding: 3px 6px;
+                                font-size: 13px;
+                            }
+                        </style>
+                        
+                        <div class="compact_form">
+                            <div class="oe_title">
+                                <h1>
+                                    <field name="name" placeholder="Nombre del proceso" style="margin-bottom: 10px;"/>
+                                </h1>
+                            </div>
+                            
+                            <!-- Configuración principal compacta -->
+                            <group>
+                                <group string="Configuración Básica">
+                                    <field name="operation_type" widget="radio" options="{'horizontal': true}"/>
+                                    <field name="import_type" widget="radio" options="{'horizontal': true}"/>
+                                    <field name="date"/>
+                                </group>
+                                <group string="Parámetros">
+                                    <field name="journal_id" required="1" readonly="state != 'draft'" options="{'no_create': true}"/>
+                                    <field name="product_id" readonly="state != 'draft'" options="{'no_create': true}"
+                                           string="Producto (solo facturas nuevas)"
+                                           invisible="import_type == 'balance'"/>
+                                    <field name="separator" string="Sep. CSV"/>
+                                </group>
+                            </group>
+                            
+                            <!-- Archivo y tipo de cambio -->
+                            <group>
+                                <group string="Archivo CSV">
+                                    <field name="iva_file" filename="filename" readonly="state != 'draft'" nolabel="1"/>
+                                    <field name="filename" invisible="1"/>
+                                </group>
+                                <group string="Tipo de Cambio">
+                                    <field name="update_exchange_rates" string="Auto TC"/>
+                                    <field name="usd_exchange_rate" 
+                                           invisible="update_exchange_rates == False"
+                                           string="USD/ARS"
+                                           digits="[12,4]"/>
+                                </group>
+                            </group>
+                            
+                            <notebook>
+                                <page string="� Análisis" name="analisis" invisible="state == 'draft'">
+                                    <group>
+                                        <group string="📋 Resumen General">
+                                            <field name="analysis_total_rows" string="Total Filas Leídas"/>
+                                            <field name="analysis_valid_rows" string="Filas Válidas"/>
+                                            <field name="analysis_omitted_rows" string="Filas Omitidas"/>
+                                            <field name="analysis_success_percentage" string="% de Éxito" widget="percentage"/>
+                                        </group>
+                                        <group string="💰 Totales Financieros">
+                                            <field name="analysis_total_net" string="Total Neto" widget="monetary"/>
+                                            <field name="analysis_total_tax" string="Total IVA" widget="monetary"/>
+                                            <field name="analysis_total_amount" string="Total General" widget="monetary"/>
+                                        </group>
+                                    </group>
+                                    <group string="🔍 Estado de Comprobantes" invisible="import_type != 'new_documents'">
+                                        <group>
+                                            <field name="analysis_existing_documents" string="Existentes"/>
+                                            <field name="analysis_new_documents" string="Nuevos"/>
+                                        </group>
+                                        <group>
+                                            <field name="analysis_duplicate_percentage" string="% Duplicados" widget="percentage"/>
+                                        </group>
+                                    </group>
+                                    <group string="📄 Reporte Completo">
+                                        <field name="analysis_report" nolabel="1" readonly="1"/>
+                                    </group>
+                                </page>
+                                <page string="�📄 Facturas" name="facturas">
+                                    <field name="move_ids" readonly="1" nolabel="1">
+                                        <list create="false" delete="false">
+                                            <field name="name" string="Número"/>
+                                            <field name="move_type" string="Tipo"/>
+                                            <field name="invoice_date" string="Fecha"/>
+                                            <field name="partner_id" string="Partner"/>
+                                            <field name="currency_id" string="Mon." optional="hide"/>
+                                            <field name="amount_total" string="Total" sum="Total"/>
+                                            <field name="file_amount" string="Archivo" optional="hide"/>
+                                            <field name="state" string="Estado" widget="badge"/>
+                                        </list>
+                                    </field>
+                                </page>
+                                <page string="🛠️ Debug" name="debug">
+                                    <group string="📋 Resumen de Facturas Rechazadas">
+                                        <field name="debug_messages" nolabel="1" readonly="1" 
+                                               widget="text"
+                                               style="height: 500px; font-family: 'Consolas', 'Courier New', monospace; font-size: 13px; white-space: pre-wrap;"/>
+                                    </group>
+                                </page>
+                                <page string="�👥 Contactos" name="contactos">
+                                    <field name="partner_ids" readonly="1" nolabel="1">
+                                        <list create="false" delete="false">
+                                            <field name="name" string="Nombre"/>
+                                            <field name="vat" string="CUIT"/>
+                                            <field name="supplier_rank" string="Proveedor" widget="boolean"/>
+                                            <field name="customer_rank" string="Cliente" widget="boolean"/>
+                                        </list>
+                                    </field>
+                                </page>
+                                <page string="💱 Tipos Cambio" name="tipos_cambio">
+                                    <field name="currency_rate_ids" readonly="1" nolabel="1">
+                                        <list create="false" delete="false">
+                                            <field name="name" string="Fecha"/>
+                                            <field name="currency_id" string="Moneda"/>
+                                            <field name="rate" string="TC Odoo" digits="[12,6]"/>
+                                            <field name="company_id" string="Compañía" optional="hide"/>
+                                        </list>
+                                    </field>
+                                </page>
+                            </notebook>
+                        </div>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_account_iva_file" model="ir.actions.act_window">
+            <field name="name">Importar Saldos</field>
+            <field name="res_model">account.iva.file</field>
+            <field name="view_mode">list,form</field>
+            <field name="target">current</field>
+        </record>
+
+        <!-- Menú principal - usar un External ID que SÍ existe -->
+        <menuitem
+            id="menu_account_iva_import"
+            name="Importar Saldos"
+            action="action_account_iva_file"
+            parent="account.menu_finance_entries"
+            sequence="200"/>
+
+    </data>
+</odoo>
