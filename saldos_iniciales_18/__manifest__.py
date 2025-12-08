@@ -20,10 +20,11 @@
         • Comprobantes nuevos: Para importar nuevos comprobantes con verificación de duplicados y detalles de IVA
     """,
     "category": "Accounting",
-    "version": "18.0.1.2.0",
+    "version": "18.0.1.2.6",
     "depends": ["base", "account", "l10n_ar", "mail"],
     "data": [
         "security/ir.model.access.csv",
+        "security/ir_rule.xml",
         "account_view.xml",
     ],
     'license': 'LGPL-3',

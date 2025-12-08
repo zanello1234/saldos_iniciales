@@ -19,6 +19,7 @@
             <field name="arch" type="xml">
                 <list create="true" edit="true" delete="true">
                     <field name="name" string="Proceso"/>
+                    <field name="company_id" string="Compañía" optional="show"/>
                     <field name="operation_type" string="Operación" widget="badge"/>
                     <field name="import_type" string="Tipo Import." widget="badge"/>
                     <field name="date" string="Fecha"/>
@@ -82,6 +83,7 @@
                             <!-- Configuración principal compacta -->
                             <group>
                                 <group string="Configuración Básica">
+                                    <field name="company_id" readonly="state != 'draft'" options="{'no_create': true}"/>
                                     <field name="operation_type" widget="radio" options="{'horizontal': true}"/>
                                     <field name="import_type" widget="radio" options="{'horizontal': true}"/>
                                     <field name="date"/>
@@ -152,11 +154,12 @@
                                         </list>
                                     </field>
                                 </page>
-                                <page string="🛠️ Debug" name="debug">
-                                    <group string="📋 Resumen de Facturas Rechazadas">
+                                <page string="� Debug" name="debug">
+                                    <group string="📋 Mensajes de Debugging en Tiempo Real">
                                         <field name="debug_messages" nolabel="1" readonly="1" 
-                                               widget="text"
-                                               style="height: 500px; font-family: 'Consolas', 'Courier New', monospace; font-size: 13px; white-space: pre-wrap;"/>
+                                               widget="html" 
+                                               options="{'safe': true}"
+                                               style="height: 500px; overflow-y: auto; background: #1e1e1e; color: #00ff00; font-family: 'Courier New', monospace; padding: 10px; border: 1px solid #333;"/>
                                     </group>
                                 </page>
                                 <page string="�👥 Contactos" name="contactos">
@@ -186,8 +189,17 @@
             </field>
         </record>
 
-        <record id="action_account_iva_file" model="ir.actions.act_window">
+        <!-- Acción principal para importación de saldos - Corregida para multicompany -->
+        <record id="action_account_iva_file_v2" model="ir.actions.act_window">
             <field name="name">Importar Saldos</field>
+            <field name="res_model">account.iva.file</field>
+            <field name="view_mode">list,form</field>
+            <field name="target">current</field>
+        </record>
+
+        <!-- Mantener la acción anterior para compatibilidad pero sin usar -->
+        <record id="action_account_iva_file" model="ir.actions.act_window">
+            <field name="name">Importar Saldos (Obsoleto)</field>
             <field name="res_model">account.iva.file</field>
             <field name="view_mode">list,form</field>
             <field name="target">current</field>
@@ -197,7 +209,7 @@
         <menuitem
             id="menu_account_iva_import"
             name="Importar Saldos"
-            action="action_account_iva_file"
+            action="action_account_iva_file_v2"
             parent="account.menu_finance_entries"
             sequence="200"/>
 
