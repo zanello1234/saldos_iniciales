@@ -94,5 +94,6 @@ Credits
 
 **Maintainers**
 
-This module is maintained by Previnca.
+This module is maintained by Martin Zanello.
+
 
