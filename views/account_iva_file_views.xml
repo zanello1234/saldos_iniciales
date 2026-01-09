@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Tree View -->
+    <record id="view_account_iva_file_tree" model="ir.ui.view">
+        <field name="name">account.iva.file.list</field>
+        <field name="model">account.iva.file</field>
+        <field name="arch" type="xml">
+            <list create="true" edit="true" delete="true">
+                <field name="name" string="Process"/>
+                <field name="company_id" string="Company" optional="show"/>
+                <field name="operation_type" string="Operation" widget="badge"/>
+                <field name="import_type" string="Import Type" widget="badge"/>
+                <field name="date" string="Date"/>
+                <field name="journal_id" string="Journal" optional="hide"/>
+                <field name="usd_exchange_rate" string="USD Rate" optional="hide" digits="[12,4]"/>
+                <field name="state" string="State" widget="badge"
+                       decoration-success="state == 'done'"
+                       decoration-warning="state == 'analyzed'"
+                       decoration-info="state == 'draft'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_account_iva_file_form" model="ir.ui.view">
+        <field name="name">account.iva.file.form</field>
+        <field name="model">account.iva.file</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="btn_analyze_file"
+                            string="Analyze File"
+                            type="object"
+                            invisible="state not in ('draft',)"
+                            class="btn-secondary"/>
+                    <button name="btn_process_file"
+                            string="Process File"
+                            type="object"
+                            invisible="state not in ('analyzed',)"
+                            class="btn-primary"
+                            confirm="Are you sure you want to create invoices? This operation cannot be easily undone."/>
+                    <button name="btn_rollback"
+                            string="Rollback Import"
+                            type="object"
+                            invisible="state not in ('done',)"
+                            class="btn-secondary"
+                            confirm="WARNING: This will DELETE all invoices and currency rates created by this import. Partners created exclusively by this import (and not used elsewhere) might also be deleted. Are you sure?"/>
+                    <button name="btn_reset_to_draft"
+                            string="Reset to Draft"
+                            type="object"
+                            invisible="state != 'analyzed'"
+                            class="btn-secondary"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,analyzed,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Process name"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group string="Basic Configuration">
+                            <field name="company_id" readonly="state != 'draft'" options="{'no_create': true}"/>
+                            <field name="operation_type" widget="radio" options="{'horizontal': true}"/>
+                            <field name="import_type" widget="radio" options="{'horizontal': true}"/>
+                            <field name="date"/>
+                        </group>
+                        <group string="Parameters">
+                            <field name="journal_id" required="1" readonly="state != 'draft'" options="{'no_create': true}"/>
+                            <field name="product_id" readonly="state != 'draft'" options="{'no_create': true}"
+                                   string="Product (new invoices only)"
+                                   invisible="import_type == 'initial_balances'"/>
+                            <field name="separator" string="CSV Separator"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group string="CSV File">
+                            <field name="iva_file" filename="filename" readonly="state != 'draft'" nolabel="1"/>
+                            <field name="filename" invisible="1"/>
+                        </group>
+                        <group string="Exchange Rate">
+                            <field name="update_exchange_rates" string="Auto Update"/>
+                            <field name="usd_exchange_rate"
+                                   invisible="update_exchange_rates == False"
+                                   string="USD/ARS"
+                                   digits="[12,4]"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Analysis" name="analysis" invisible="state == 'draft'">
+                            <group>
+                                <group string="General Summary">
+                                    <field name="analysis_total_rows" string="Total Rows Read"/>
+                                    <field name="analysis_valid_rows" string="Valid Rows"/>
+                                    <field name="analysis_omitted_rows" string="Omitted Rows"/>
+                                    <field name="analysis_success_percentage" string="Success %" widget="percentage"/>
+                                </group>
+                                <group string="Financial Totals">
+                                    <field name="analysis_total_net" string="Total Net" widget="monetary"/>
+                                    <field name="analysis_total_tax" string="Total VAT" widget="monetary"/>
+                                    <field name="analysis_total_amount" string="Grand Total" widget="monetary"/>
+                                </group>
+                            </group>
+                            <group string="Document Status" invisible="import_type != 'new_documents'">
+                                <group>
+                                    <field name="analysis_existing_documents" string="Existing"/>
+                                    <field name="analysis_new_documents" string="New"/>
+                                </group>
+                                <group>
+                                    <field name="analysis_duplicate_percentage" string="Duplicate %" widget="percentage"/>
+                                </group>
+                            </group>
+                            <separator string="Full Report"/>
+                            <field name="analysis_report" nolabel="1" readonly="1"/>
+                        </page>
+                        <page string="Invoices" name="invoices">
+                            <field name="move_ids" readonly="1" nolabel="1">
+                                <list create="false" delete="false">
+                                    <field name="name" string="Number"/>
+                                    <field name="move_type" string="Type"/>
+                                    <field name="invoice_date" string="Date"/>
+                                    <field name="partner_id" string="Partner"/>
+                                    <field name="currency_id" string="Currency"/>
+                                    <field name="company_currency_id" column_invisible="True"/>
+                                    <field name="display_exchange_rate" string="Exch. Rate" optional="show"/>
+                                    <field name="amount_total" string="Total" sum="Total"/>
+                                    <field name="amount_total_signed" string="Total (ARS)" sum="Total ARS" optional="show"/>
+                                    <field name="file_amount" string="File Amount" optional="hide"/>
+                                    <field name="state" string="State" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Partners" name="partners">
+                            <field name="partner_ids" readonly="1" nolabel="1">
+                                <list create="false" delete="false">
+                                    <field name="name" string="Name"/>
+                                    <field name="vat" string="CUIT"/>
+                                    <field name="supplier_rank" string="Supplier" widget="boolean"/>
+                                    <field name="customer_rank" string="Customer" widget="boolean"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Errors" name="errors">
+                            <field name="error_ids">
+                                <list decoration-danger="1" create="false" delete="false" edit="false">
+                                    <field name="row_number"/>
+                                    <field name="cuit"/>
+                                    <field name="error_message"/>
+                                    <field name="row_content" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_account_iva_file_search" model="ir.ui.view">
+        <field name="name">account.iva.file.search</field>
+        <field name="model">account.iva.file</field>
+        <field name="arch" type="xml">
+            <search string="Search Import Files">
+                <field name="name"/>
+                <field name="company_id"/>
+                <field name="journal_id"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Analyzed" name="analyzed" domain="[('state', '=', 'analyzed')]"/>
+                <filter string="Processed" name="done" domain="[('state', '=', 'done')]"/>
+                <separator/>
+                <filter string="Purchases" name="purchase" domain="[('operation_type', '=', 'purchase')]"/>
+                <filter string="Sales" name="sale" domain="[('operation_type', '=', 'sale')]"/>
+
+                <!--
+                <group string="Group By">
+                    <filter string="State" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Operation Type" name="group_operation" context="{'group_by': 'operation_type'}"/>
+                    <filter string="Company" name="group_company" context="{'group_by': 'company_id'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'date'}"/>
+                </group>
+                -->
+            </search>
+        </field>
+    </record>
+
+</odoo>

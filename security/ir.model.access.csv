@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_account_iva_file_user,account.iva.file.user,model_account_iva_file,account.group_account_user,1,1,1,1
+access_account_iva_file_manager,account.iva.file.manager,model_account_iva_file,account.group_account_manager,1,1,1,1
+access_account_iva_file_line_error_user,account.iva.file.line.error.user,model_account_iva_file_line_error,account.group_account_user,1,1,1,1
+access_account_iva_file_line_error_manager,account.iva.file.line.error.manager,model_account_iva_file_line_error,account.group_account_manager,1,1,1,1
