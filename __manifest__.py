@@ -26,8 +26,8 @@ Import Types
 This module is designed specifically for the Argentine localization and requires 
 the l10n_ar module to be installed.
     """,
-    "author": "Your Company Name",
-    "website": "https://www.yourcompany.com",
+    "author": "Martin Zanello",
+    "website": "http://www.onlyone.odoo.com",
     "category": "Accounting/Localizations",
     "version": "19.0.1.0.0",
     "license": "LGPL-3",
