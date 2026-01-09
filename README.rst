@@ -90,8 +90,9 @@ Credits
 
 **Authors**
 
-* Previnca
+* Martin Zanello
 
 **Maintainers**
 
 This module is maintained by Previnca.
+
