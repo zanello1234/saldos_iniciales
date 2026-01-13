@@ -1,32 +1,20 @@
 <section class="oe_container">
     <div class="oe_row oe_spaced">
-        <h2 class="oe_slogan" style="color:#875A7B;">Initial Balances Import</h2>
-        <h3 class="oe_slogan">Import receivable and payable balances from AFIP CSV files</h3>
-        <div class="oe_span12">
-            <div class="alert alert-info" style="padding:16px;">
-                Reference module for importing initial balances and new invoices from AFIP CSV files in Odoo.
-                It allows you to quickly migrate historical data or import periodic batch invoices.
+        <h2 class="oe_slogan" style="color:#2C3E50;"><b>Importación de Saldos Iniciales y Facturas AFIP</b></h2>
+        <h3 class="oe_slogan" style="color:#34495E;">Migra tus saldos pendientes y facturas históricas de forma masiva y profesional.</h3>
+        
+        <div class="oe_span12 text-center">
+            <div style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 10px; padding: 20px; margin: 20px 0;">
+                <h3 style="color: #28a745; margin-bottom: 5px;"><b>Precio: 30 USD</b></h3>
+                <p style="color: #6c757d; font-size: 14px;">Pago único - Licencia OPL-1</p>
             </div>
         </div>
-    </div>
-</section>
 
-<section class="oe_container">
-    <div class="oe_row oe_spaced">
-        <div class="oe_span6">
-            <h2 class="oe_slogan" style="color:#875A7B;">Features</h2>
-            <ul class="list-unstyled" style="font-size:16px;">
-                <li><i class="fa fa-check text-success"></i> Import initial balances (total amount)</li>
-                <li><i class="fa fa-check text-success"></i> Import new invoices with VAT details</li>
-                <li><i class="fa fa-check text-success"></i> Duplicate verification</li>
-                <li><i class="fa fa-check text-success"></i> Multi-currency support (USD/ARS)</li>
-                <li><i class="fa fa-check text-success"></i> Automatic exchange rate updates</li>
-                <li><i class="fa fa-check text-success"></i> Automatic partner creation</li>
-            </ul>
-        </div>
-        <div class="oe_span6">
-            <div class="oe_demo oe_picture oe_screenshot">
-                <img src="icon.png" style="max-height: 200px; display: block; margin: 0 auto;"/>
+        <div class="oe_span12">
+            <div class="alert alert-info" style="padding:16px; border-radius: 10px; border-left: 5px solid #17a2b8;">
+                <p style="font-size: 16px; margin-bottom: 0;">
+                    Este módulo está diseñado específicamente para la localización argentina (l10n_ar). Permite importar comprobantes de ventas y compras directamente desde los archivos CSV exportados por AFIP (Mis Comprobantes), automatizando la carga de saldos y la creación de contactos.
+                </p>
             </div>
         </div>
     </div>
@@ -34,13 +22,78 @@
 
 <section class="oe_container oe_dark">
     <div class="oe_row oe_spaced">
-        <h2 class="oe_slogan" style="color:#875A7B;">How it works</h2>
         <div class="oe_span12">
-            <p class="oe_mt32" style="font-size:16px;">
-                1. Upload your AFIP CSV file (Purchases or Sales).<br/>
-                2. Click on "Analyze File" to verify the data and detect potential issues.<br/>
-                3. Review the analysis report.<br/>
-                4. Click on "Process File" to create the invoices and partners.<br/>
+            <h2 class="oe_slogan" style="color:#2C3E50;"><b>Características Principales</b></h2>
+        </div>
+        <div class="oe_span6">
+            <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); height: 100%;">
+                <h4 style="color:#2C3E50;"><i class="fa fa-file-text-o text-primary"></i> <b>Dos Modos de Importación</b></h4>
+                <ul class="list-unstyled" style="font-size:15px; line-height: 1.8;">
+                    <li><i class="fa fa-check text-success"></i> <b>Saldos Iniciales:</b> Importa el saldo total (sin IVA desglosado), ideal para arranques de sistema.</li>
+                    <li><i class="fa fa-check text-success"></i> <b>Nuevos Documentos:</b> Importa facturas completas con desglose de IVA (21%, 10.5%, etc.), percepciones y tasas.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="oe_span6">
+            <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); height: 100%;">
+                <h4 style="color:#2C3E50;"><i class="fa fa-gears text-primary"></i> <b>Automatización Total</b></h4>
+                <ul class="list-unstyled" style="font-size:15px; line-height: 1.8;">
+                    <li><i class="fa fa-check text-success"></i> <b>Creación de Partners:</b> Crea automáticamente clientes y proveedores por CUIT si no existen.</li>
+                    <li><i class="fa fa-check text-success"></i> <b>Multimoneda:</b> Conversión inteligente de "DOL" a USD y "PES" a ARS.</li>
+                    <li><i class="fa fa-check text-success"></i> <b>Tipos de Cambio:</b> Actualiza automáticamente la tasa de cambio en Odoo según el archivo.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <h2 class="oe_slogan" style="color:#2C3E50;"><b>¿Cómo funciona?</b></h2>
+        <div class="oe_span12">
+            <div class="row">
+                <div class="col-md-3 text-center">
+                    <div style="background: #E8F4FD; border-radius: 50%; width: 80px; height: 80px; line-height: 80px; margin: 0 auto 15px;">
+                        <i class="fa fa-upload" style="font-size: 32px; color: #3498DB;"></i>
+                    </div>
+                    <h5><b>1. Subir</b></h5>
+                    <p>Sube el CSV de AFIP (Compras o Ventas).</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div style="background: #E8F4FD; border-radius: 50%; width: 80px; height: 80px; line-height: 80px; margin: 0 auto 15px;">
+                        <i class="fa fa-search" style="font-size: 32px; color: #3498DB;"></i>
+                    </div>
+                    <h5><b>2. Analizar</b></h5>
+                    <p>El sistema valida CUITs, duplicados e inconsistencias.</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div style="background: #E8F4FD; border-radius: 50%; width: 80px; height: 80px; line-height: 80px; margin: 0 auto 15px;">
+                        <i class="fa fa-list-alt" style="font-size: 32px; color: #3498DB;"></i>
+                    </div>
+                    <h5><b>3. Revisar</b></h5>
+                    <p>Obtén un reporte detallado con estadísticas de importación.</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div style="background: #E8F4FD; border-radius: 50%; width: 80px; height: 80px; line-height: 80px; margin: 0 auto 15px;">
+                        <i class="fa fa-play-circle" style="font-size: 32px; color: #3498DB;"></i>
+                    </div>
+                    <h5><b>4. Procesar</b></h5>
+                    <p>Genera las facturas y contactos con un solo clic.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="oe_container oe_dark">
+    <div class="oe_row oe_spaced">
+        <h2 class="oe_slogan" style="color:#2C3E50;"><b>Seguridad y Control</b></h2>
+        <div class="oe_span12">
+            <p style="font-size:16px;">
+                El módulo cuenta con un sistema de <b>Verificación de Duplicados</b> para el importador de "Nuevos Documentos", evitando que se cargue la misma factura dos veces buscando por socio de negocio, tipo de documento y número.
+            </p>
+            <p style="font-size:16px;">
+                Además, si algo no sale como esperabas, puedes utilizar la función de <b>Rollback</b> (mientras las facturas estén en borrador) para limpiar la importación y volver a empezar.
             </p>
         </div>
     </div>
