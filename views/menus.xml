@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Main Action -->
+    <record id="action_account_iva_file" model="ir.actions.act_window">
+        <field name="name">Import Balances</field>
+        <field name="res_model">account.iva.file</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_account_iva_file_search"/>
+        <field name="context">{'search_default_draft': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first balance import
+            </p>
+            <p>
+                Import receivable and payable balances from AFIP CSV files.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Items -->
+    <menuitem
+        id="menu_account_import_balances"
+        name="Importar comprobantes"
+        action="action_account_iva_file"
+        parent="account.menu_finance_entries"
+        sequence="200"/>
+
+</odoo>
