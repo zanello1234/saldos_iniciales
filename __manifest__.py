@@ -30,7 +30,7 @@ the l10n_ar module to be installed.
     "website": "http://www.onlyone.odoo.com",
     "category": "Accounting/Localizations",
     "version": "18.0.1.0.0",
-    "license": "LGPL-3",
+    "license": "OPL-1",
     "depends": [
         "base",
         "account",
