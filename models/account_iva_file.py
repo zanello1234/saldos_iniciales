@@ -1134,12 +1134,14 @@ class AccountIvaFile(models.Model):
                 iva_27_amount = parse_amount(row[22]) if len(row) > 22 else 0.0
                 iva_5_amount = parse_amount(row[16]) if len(row) > 16 else 0.0
                 iva_2_5_amount = parse_amount(row[14]) if len(row) > 14 else 0.0
+                no_taxable_amount = parse_amount(row[25]) if len(row) > 25 else 0.0
             else:
                 iva_21_amount = parse_amount(row[18]) if len(row) > 18 else 0.0
                 iva_10_5_amount = parse_amount(row[16]) if len(row) > 16 else 0.0
                 iva_27_amount = parse_amount(row[20]) if len(row) > 20 else 0.0
                 iva_5_amount = parse_amount(row[14]) if len(row) > 14 else 0.0
                 iva_2_5_amount = parse_amount(row[12]) if len(row) > 12 else 0.0
+                no_taxable_amount = parse_amount(row[23]) if len(row) > 23 else 0.0
 
             tax_amounts = [
                 (27, iva_27_amount),
@@ -1154,6 +1156,19 @@ class AccountIvaFile(models.Model):
                     tax = self._find_tax_by_amount(tax_amount)
                     if tax:
                         tax_ids.append(tax.id)
+
+            if no_taxable_amount > 0:
+                tax_use = 'purchase' if self.operation_type == 'purchase' else 'sale'
+                tax = self.env['account.tax'].search([
+                    ('type_tax_use', '=', tax_use),
+                    ('amount', '=', 0),
+                    ('company_id', '=', self.company_id.id),
+                    '|',
+                    ('name', 'ilike', 'No Gravado'),
+                    ('name', 'ilike', 'Untaxed')
+                ], limit=1)
+                if tax:
+                    tax_ids.append(tax.id)
 
             if not tax_ids and doc_type_code == '11':
                 tax_use = 'purchase' if self.operation_type == 'purchase' else 'sale'
