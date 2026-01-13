@@ -476,22 +476,34 @@ class AccountIvaFile(models.Model):
 
                     if self.operation_type == 'purchase':
                         currency_code = row[12].strip().upper() if len(row) > 12 else ''
-                        if doc_type_code == '11':
-                            amount_str = row[29].strip().replace(' ', '') if len(row) > 29 and row[29] else '0'
-                        else:
-                            amount_str = row[24].strip().replace(' ', '') if len(row) > 24 and row[24] else '0'
+                        # Sum components: Gravado (24) + No Gravado (25) + Exento (26)
+                        neto_gravado = self._parse_amount(row[24]) if len(row) > 24 else 0.0
+                        neto_no_gravado = self._parse_amount(row[25]) if len(row) > 25 else 0.0
+                        exento = self._parse_amount(row[26]) if len(row) > 26 else 0.0
+                        amount = neto_gravado + neto_no_gravado + exento
+                        
+                        # Fallback for Factura C or cases where components are not populated but total is
+                        if amount == 0 and len(row) > 29:
+                            total_amount = self._parse_amount(row[29])
+                            if total_amount > 0:
+                                amount = total_amount
                     else:
                         currency_code = row[10].strip().upper() if len(row) > 10 else ''
-                        if doc_type_code == '11':
-                            amount_str = row[27].strip().replace(' ', '') if len(row) > 27 and row[27] else '0'
-                        else:
-                            amount_str = row[22].strip().replace(' ', '') if len(row) > 22 and row[22] else '0'
+                        # Sum components: Gravado (22) + No Gravado (23) + Exento (24)
+                        neto_gravado = self._parse_amount(row[22]) if len(row) > 22 else 0.0
+                        neto_no_gravado = self._parse_amount(row[23]) if len(row) > 23 else 0.0
+                        exento = self._parse_amount(row[24]) if len(row) > 24 else 0.0
+                        amount = neto_gravado + neto_no_gravado + exento
+
+                        # Fallback
+                        if amount == 0 and len(row) > 27:
+                            total_amount = self._parse_amount(row[27])
+                            if total_amount > 0:
+                                amount = total_amount
 
                     if not cuit or len(cuit) < 7:
                         cuits_invalidos += 1
                         continue
-
-                    amount = self._parse_amount(amount_str)
 
                     if amount == 0:
                         montos_cero += 1
@@ -499,44 +511,35 @@ class AccountIvaFile(models.Model):
 
                     valid_rows += 1
 
-                    # Accumulate by currency
-                    neto = 0.0
-                    iva = 0.0
-
-                    if amount > 0:
-                        if doc_type_code in ['1', '2', '3', '51', '52', '53', '201']:
-                            neto = amount / 1.21
-                            iva = amount - neto
-                        elif doc_type_code in ['202', '203']:
-                            neto = amount / 1.105
-                            iva = amount - neto
-                        else:
-                            neto = amount
-                            iva = 0.0
+                    # Get actual values from CSV for accurate reporting
+                    if self.operation_type == 'purchase':
+                        iva = self._parse_amount(row[28]) if len(row) > 28 else 0.0
+                        total = self._parse_amount(row[29]) if len(row) > 29 else 0.0
+                    else:
+                        iva = self._parse_amount(row[26]) if len(row) > 26 else 0.0
+                        total = self._parse_amount(row[27]) if len(row) > 27 else 0.0
+                    
+                    # 'amount' already contains the Base sum (Neto+No Gravado+Exento)
+                    neto = amount 
 
                     if currency_code in ['DOL', 'USD']:
                         total_usd['count'] += 1
                         total_usd['neto'] += neto
                         total_usd['iva'] += iva
-                        total_usd['total'] += amount
+                        total_usd['total'] += total
                         
-                        # Add to general total (estimated ARS just for single field storage? 
-                        # Or better just store ARS part in fields. For now we sum raw just for non-breaking behavior, 
-                        # but the report will show the truth)
-                        # Let's NOT mix currencies in the simple totals fields if possible, but they are Floats.
-                        # We'll just sum them raw as legacy behavior, but the HTML report is what matters.
                         total_neto += neto
                         total_iva += iva
-                        total_general += amount
+                        total_general += total
                     else:
                         total_ars['count'] += 1
                         total_ars['neto'] += neto
                         total_ars['iva'] += iva
-                        total_ars['total'] += amount
+                        total_ars['total'] += total
 
                         total_neto += neto
                         total_iva += iva
-                        total_general += amount
+                        total_general += total
 
 
                     if self.import_type == 'new_documents':
@@ -718,15 +721,29 @@ class AccountIvaFile(models.Model):
                     doc_type_code = row[1].strip() if len(row) > 1 else ''
 
                     if self.operation_type == 'purchase':
-                        if doc_type_code == '11':
-                            amount_str = row[29].strip().replace(' ', '') if len(row) > 29 and row[29] else '0'
-                        else:
-                            amount_str = row[24].strip().replace(' ', '') if len(row) > 24 and row[24] else '0'
+                        # Sum components: Gravado (24) + No Gravado (25) + Exento (26)
+                        neto_gravado = self._parse_amount(row[24]) if len(row) > 24 else 0.0
+                        neto_no_gravado = self._parse_amount(row[25]) if len(row) > 25 else 0.0
+                        exento = self._parse_amount(row[26]) if len(row) > 26 else 0.0
+                        amount = neto_gravado + neto_no_gravado + exento
+
+                        # Fallback for Factura C or cases where components are not populated but total is
+                        if amount == 0 and len(row) > 29:
+                            total_amount = self._parse_amount(row[29])
+                            if total_amount > 0:
+                                amount = total_amount
                     else:
-                        if doc_type_code == '11':
-                            amount_str = row[27].strip().replace(' ', '') if len(row) > 27 and row[27] else '0'
-                        else:
-                            amount_str = row[22].strip().replace(' ', '') if len(row) > 22 and row[22] else '0'
+                        # Sum components: Gravado (22) + No Gravado (23) + Exento (24)
+                        neto_gravado = self._parse_amount(row[22]) if len(row) > 22 else 0.0
+                        neto_no_gravado = self._parse_amount(row[23]) if len(row) > 23 else 0.0
+                        exento = self._parse_amount(row[24]) if len(row) > 24 else 0.0
+                        amount = neto_gravado + neto_no_gravado + exento
+
+                        # Fallback
+                        if amount == 0 and len(row) > 27:
+                            total_amount = self._parse_amount(row[27])
+                            if total_amount > 0:
+                                amount = total_amount
 
                     # Exchange Rate Logic
                     if self.update_exchange_rates:
@@ -761,8 +778,6 @@ class AccountIvaFile(models.Model):
                         errores_detallados['cuits_invalidos'] += 1
                         self._log_error(i, f"Omitted due to invalid CUIT '{cuit}'", cuit=cuit, row_data=row)
                         continue
-
-                    amount = self._parse_amount(amount_str)
 
                     if amount == 0:
                         facturas_omitidas += 1
